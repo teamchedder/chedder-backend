@@ -5,7 +5,13 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 const config = require('./config/database');
 
-
+mongoose.connect(config.database);
+mongoose.connection.on('connected', () => {
+    console.log('Connected to database ' + config.database);
+});
+mongoose.connection.on('error', (err) => {
+    console.log('Database error: ' + err);
+});
 
 const chedder = express();
 
@@ -22,9 +28,9 @@ require('./config/passport')(passport);
 
 chedder.get('/', (req, res) => {
     res.send('Chedder API Endpoint');
-})
+});
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3500;
 
 chedder.listen(port, () => {
     console.log("Chedder backend service is running on  port ", port);
