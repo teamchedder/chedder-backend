@@ -16,12 +16,14 @@ mongoose.connection.on('error', (err) => {
 const chedder = express();
 
 const users = require('./routes/users');
+const api = require('./routes/api');
 
 chedder.use(cors());
 chedder.use(bodyParser.json());
 chedder.use(passport.initialize());
 chedder.use(passport.session());
 chedder.use('/users', users);
+chedder.use('/api', api);
 
 
 require('./config/passport')(passport);
