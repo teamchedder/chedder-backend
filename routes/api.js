@@ -57,7 +57,7 @@ router.post('/account/resolve', (req, res, next) => {
           "account_name": mockAccountHolders[Math.floor(Math.random() * mockAccountHolders.length)]
     }
 }})
-})
+});
 
 function authenticateFW(){
     /* FW Live authentication
