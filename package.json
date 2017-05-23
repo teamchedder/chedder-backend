@@ -31,6 +31,7 @@
     "jsonwebtoken": "7.4.0",
     "mongoose": "4.9.9",
     "passport": "0.3.2",
-    "passport-jwt": "2.2.1"
+    "passport-jwt": "2.2.1",
+    "unirest": "^0.5.1"
   }
 }
