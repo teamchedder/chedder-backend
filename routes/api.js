@@ -11,7 +11,7 @@ router.post('/banks', (req, res, next) => {
     unirest.post(url)
         .headers({'content-type': 'application/json'})
         .end((response) => {
-            res.json({result: response});
+            res.json({result: response.body});
             console.log('Bank list fetched and delivered');
         })
 });
@@ -81,6 +81,84 @@ router.post('/card/enquiry', (req, res, next) => {
                 .end((response) => {
                     res.json({result: response.body});
                     console.log('Card enquiry done');
+                })
+        })
+})
+
+
+//Transfer from Card to Account
+router.post('/transfer/cardaccount', (req, res, next) => {
+    let urlVerify = BASE_URL + 'v1/merchant/verify';
+    let urlTransfer = BASE_URL + 'v1/transfer';
+    let params = {
+        firstname: req.body.firstName,
+        lastname: req.body.lastName,
+        email: req.body.email,
+        phonenumber: req.body.phoneNumber,
+        recipient_bank: req.body.recipientBank,
+        recipient_account_number: req.body.recipientAccountNumber,
+        card_no: req.body.cardNumber,
+        cvv: req.body.cvv,
+        pin: req.body.pinVerve,
+        expiry_year: req.body.expiryYear,
+        expiry_month: req.body.expiryMonth,
+        charge_auth: req.body.pinMastercard,
+        apiKey: process.env.FW_API_KEY,
+        amount: req.body.totalAmount,
+        narration: req.body.description,
+        fee: req.body.chargeAmount,
+        medium: 'web',
+        redirectUrl: ''
+    };
+    unirest.post(urlVerify)
+        .headers({'content-type': 'application/json'})
+        .send({'apiKey': process.env.FW_API_KEY, 'secret': process.env.FW_SECRET})
+        .end((response) => {
+            let token = response.body.token;
+            unirest.post(urlTransfer)
+                .headers({'content-type': 'application/json', 'authorization': token})
+                .send(params)
+                .end((response) => {
+                    res.json({result: response.body});
+                    console.log('Card to account transfer done');
+                })
+        })
+});
+
+//Transfer from Account to aAccount
+router.post('/transfer/accountaccount', (req, res, next) => {
+    let urlVerify = BASE_URL + 'v1/merchant/verify';
+    let urlTransfer = BASE_URL + 'v1/transfer';
+    let params = {
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        email: req.body.email,
+        phonenumber: req.body.phonenumber,
+        recipient_bank: req.body.recipient_bank,
+        recipient_account_number: req.body.recipient_account_number,
+        charge_with: "account",
+        recipient: "account",
+        sender_account_number: req.body.sender_account_number,
+        sender_bank: req.body.sender_bank,
+        apiKey: process.env.FW_API_KEY,
+        amount: req.body.amount,
+        narration: req.body.narration,
+        fee: 45,
+        medium: 'web',
+        redirectUrl: "https://google.com"
+    }
+
+    unirest.post(urlVerify)
+        .headers({'content-type': 'application/json'})
+        .send({'apiKey': process.env.FW_API_KEY, 'secret': process.env.FW_SECRET})
+        .end((response) => {
+            let token = response.body.token;
+            unirest.post(urlTransfer)
+                .headers({'content-type': 'application/json', 'authorization': token})
+                .send(params)
+                .end((response) => {
+                    res.json({result: response.body});
+                    console.log('Account to account transfer done');
                 })
         })
 })
