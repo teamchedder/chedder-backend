@@ -6,11 +6,27 @@ const BASE_URL = 'https://moneywave.herokuapp.com/';
 
 //GET list of banks in KEnya, Nigeria and Ghana
 router.post('/banks', (req, res, next) => {
-    let url = BASE_URL + 'banks?country=' + req.body.country;
+    let countryCode;
+    let country = req.body.country;
+    switch(country){
+        case "Nigeria":
+            countryCode = "NG";
+            break;
+        case "Ghana":
+            countryCode = "GH";
+            break;
+        case "Kenya":
+            countryCode = "KE";
+            break;
+        default:
+            countryCode = "None";
+    }
+    let url = BASE_URL + 'banks?country=' + countryCode;
 
     unirest.post(url)
         .headers({'content-type': 'application/json'})
         .end((response) => {
+            let result = response.body.data
             res.json({result: response.body});
             console.log('Bank list fetched and delivered');
         })
@@ -18,6 +34,7 @@ router.post('/banks', (req, res, next) => {
 
 //Validate Bank Account Numbers
 router.post('/account/validate', (req, res, next) => {
+    ///* Live FW Resolution
     let params = ({
         account_number: req.body.account_number,
         bank_code: req.body.bank_code
@@ -38,6 +55,11 @@ router.post('/account/validate', (req, res, next) => {
                     console.log('Account validation fetched and delivered');
                 })
         })
+    /*
+    //Mock account validation
+    let mockHolders = ["Jeffery Etim", "Mary Okonnoh", "Opeyemi Ajasin", "Ebuka Okafor"];
+    let account_number = req.body.account_number;
+    let bank_code = req.body.bank_code */
 });
 
 //Tokenize Card
@@ -121,6 +143,42 @@ router.post('/transfer/cardaccount', (req, res, next) => {
                 .end((response) => {
                     res.json({result: response.body});
                     console.log('Card to account transfer done');
+                })
+        })
+});
+
+//Transfer from tokenized Card to Account
+//still having issues requiring PIN. To reply FW with errors.
+router.post('/transfer/tokenizedcardaccount', (req, res, next) => {
+    let urlVerify = BASE_URL + 'v1/merchant/verify';
+    let urlTransfer = BASE_URL + 'v1/transfer';
+    let params = {
+        firstname: req.body.firstName,
+        lastname: req.body.lastName,
+        email: req.body.email,
+        phonenumber: req.body.phoneNumber,
+        recipient_bank: req.body.recipientBank,
+        recipient_account_number: req.body.recipientAccountNumber,
+        apiKey: process.env.FW_API_KEY,
+        amount: req.body.totalAmount,
+        charge_with: "tokenized_card",
+        pin: req.body.pinVerve,
+        card_token: process.env.TEST_CARD_TOKEN,
+        fee: req.body.chargeAmount,
+        medium: 'web',
+        redirectUrl: 'https://moneywave-api-integrations.herokuapp.com'
+    };
+    unirest.post(urlVerify)
+        .headers({'content-type': 'application/json'})
+        .send({'apiKey': process.env.FW_API_KEY, 'secret': process.env.FW_SECRET})
+        .end((response) => {
+            let token = response.body.token;
+            unirest.post(urlTransfer)
+                .headers({'content-type': 'application/json', 'authorization': token})
+                .send(params)
+                .end((response) => {
+                    res.json({result: response.body});
+                    console.log('Tokenized Card to account transfer done');
                 })
         })
 });

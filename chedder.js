@@ -4,6 +4,7 @@ const cors = require('cors');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const config = require('./config/database');
+const unirest = require('unirest');
 
 mongoose.connect(config.database);
 mongoose.connection.on('connected', () => {
@@ -32,7 +33,7 @@ chedder.get('/', (req, res) => {
     res.send('Chedder API Endpoint');
 });
 
-const port = process.env.PORT || 3500;
+const port = process.env.PORT || 8080;
 
 chedder.listen(port, () => {
     console.log("Chedder backend service is running on  port ", port);
