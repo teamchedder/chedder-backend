@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const banks = require('../models/banks.json');
 const unirest = require('unirest');
 const BASE_URL = 'https://moneywave.herokuapp.com/';
 
@@ -55,11 +54,6 @@ router.post('/account/validate', (req, res, next) => {
                     console.log('Account validation fetched and delivered');
                 })
         })
-    /*
-    //Mock account validation
-    let mockHolders = ["Jeffery Etim", "Mary Okonnoh", "Opeyemi Ajasin", "Ebuka Okafor"];
-    let account_number = req.body.account_number;
-    let bank_code = req.body.bank_code */
 });
 
 //Tokenize Card
